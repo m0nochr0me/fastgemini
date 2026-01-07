@@ -83,4 +83,3 @@ error("Something went wrong")
 input_required("Enter your name:")
 input_required("Enter password:", sensitive=True)
 ```
-
