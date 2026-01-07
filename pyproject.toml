@@ -21,6 +21,9 @@ dependencies = [
     "trio>=0.32.0",
 ]
 
+[project.urls]
+Repository = "https://github.com/m0nochr0me/fastgemini"
+
 [tool.ruff]
 exclude = [
     ".bzr",
