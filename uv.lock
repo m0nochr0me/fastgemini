@@ -111,8 +111,8 @@ wheels = [
 
 [[package]]
 name = "fastgemini"
-version = "0.1.0"
-source = { virtual = "." }
+version = "0.1.1"
+source = { editable = "." }
 dependencies = [
     { name = "cffi" },
     { name = "cryptography" },

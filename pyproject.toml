@@ -8,12 +8,30 @@ module-root = ""
 
 [project]
 name = "fastgemini"
-version = "0.1.0"
+version = "0.1.1"
 description = "FastAPI-style Gemini Protocol Framework"
 readme = "README.md"
 requires-python = ">=3.14"
 license-files = ["LICENSE"]
 authors = [{ name = "Viktor Tereshchenko", email = "m0nochr0me@gmail.com" }]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development",
+    "Topic :: Communications :: BBS",
+]
 dependencies = [
     "cffi>=2.0.0",
     "cryptography>=46.0.3",
@@ -22,6 +40,7 @@ dependencies = [
 ]
 
 [project.urls]
+Homepage = "https://github.com/m0nochr0me/fastgemini"
 Repository = "https://github.com/m0nochr0me/fastgemini"
 
 [tool.ruff]
