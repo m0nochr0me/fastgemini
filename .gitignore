@@ -11,3 +11,6 @@ wheels/
 
 # Dotenv files
 .env
+
+# Scratch
+scratch/
