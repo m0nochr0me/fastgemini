@@ -23,6 +23,10 @@ class GeminiRequest(BaseModel):
         ...,
         description="The URL of the request",
     )
+    peer_ip: str | None = Field(
+        None,
+        description="The IP address of the peer",
+    )
     cert_data: dict[str, Any] | None = Field(
         None,
         description="Client certificate data if provided",
@@ -36,10 +40,15 @@ class GeminiRequest(BaseModel):
         self,
         url: bytes | str | AnyUrl,
         cert_data: dict[str, Any] | None = None,
+        peer_ip: str | None = None,
     ) -> None:
         if isinstance(url, bytes):
             url = url.decode("utf-8").strip()
-        super().__init__(url=url, cert_data=cert_data)
+        super().__init__(
+            url=url,
+            cert_data=cert_data,
+            peer_ip=peer_ip,
+        )
 
     @field_validator("url")
     @classmethod

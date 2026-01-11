@@ -170,15 +170,23 @@ class GeminiApp(GeminiRouter):
     async def _connection_handler(self, stream: trio.SSLStream) -> None:
         """Handle a single Gemini connection."""
         try:
+            # Perform TLS handshake
             await stream.do_handshake()
             cert = stream.getpeercert(binary_form=False)
+
+            # Get peer IP
+            peer_ip, _ = stream.transport_stream.socket.getpeername()
 
             # Read request (max 1024 bytes + CRLF per Gemini spec)
             request_data = await stream.receive_some(1026)
 
             # Parse request
             try:
-                request = GeminiRequest(url=request_data, cert_data=cert)
+                request = GeminiRequest(
+                    url=request_data,
+                    cert_data=cert,
+                    peer_ip=peer_ip,
+                )
             except Exception as e:
                 response = GeminiResponse(
                     status=Status.BAD_REQUEST,
