@@ -2,13 +2,12 @@
 Gemini Application - FastAPI-style server framework
 """
 
+import asyncio
 import logging
 import ssl
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Awaitable, Callable
-
-import trio
 
 from fastgemini.enums import Status
 from fastgemini.router import GeminiRouter, RouteHandler
@@ -167,18 +166,23 @@ class GeminiApp(GeminiRouter):
             content_type=error_msg,
         )
 
-    async def _connection_handler(self, stream: trio.SSLStream) -> None:
+    async def _connection_handler(
+        self,
+        reader: asyncio.StreamReader,
+        writer: asyncio.StreamWriter,
+    ) -> None:
         """Handle a single Gemini connection."""
         try:
-            # Perform TLS handshake
-            await stream.do_handshake()
-            cert = stream.getpeercert(binary_form=False)
+            # Get SSL object and peer certificate
+            ssl_object = writer.get_extra_info("ssl_object")
+            cert = ssl_object.getpeercert() if ssl_object else None
 
             # Get peer IP
-            peer_ip, _ = stream.transport_stream.socket.getpeername()
+            peername = writer.get_extra_info("peername")
+            peer_ip = peername[0] if peername else None
 
             # Read request (max 1024 bytes + CRLF per Gemini spec)
-            request_data = await stream.receive_some(1026)
+            request_data = await reader.read(1026)
 
             # Parse request
             try:
@@ -192,21 +196,29 @@ class GeminiApp(GeminiRouter):
                     status=Status.BAD_REQUEST,
                     content_type=str(e),
                 )
-                await stream.send_all(response.serialize().encode("utf-8"))
+                writer.write(response.serialize().encode("utf-8"))
+                await writer.drain()
                 return
 
             # Handle request
             response = await self._handle_request(request)
 
             # Send response
-            await stream.send_all(response.serialize().encode("utf-8"))
+            writer.write(response.serialize().encode("utf-8"))
+            await writer.drain()
 
-        except trio.BrokenResourceError:
+        except ConnectionResetError:
             # Client disconnected
             pass
         except Exception as e:
             if self.debug:
                 logger.error(f"Connection error: {e}")
+        finally:
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except Exception:
+                pass
 
     async def _serve(self) -> None:
         """Start the Gemini server."""
@@ -214,12 +226,14 @@ class GeminiApp(GeminiRouter):
         logger.info(f"   Gemini server running on gemini://{self.host}:{self.port}")
 
         async with self._lifespan(self):
-            await trio.serve_ssl_over_tcp(
+            server = await asyncio.start_server(
                 self._connection_handler,
-                self.port,
-                ssl_context=self.ssl_context,
                 host=self.host,
+                port=self.port,
+                ssl=self.ssl_context,
             )
+            async with server:
+                await server.serve_forever()
 
     def run(self) -> None:
         """
@@ -227,11 +241,11 @@ class GeminiApp(GeminiRouter):
 
         This is a blocking call that starts the server.
         """
-        trio.run(self._serve)
+        asyncio.run(self._serve())
 
     async def serve(self) -> None:
         """
-        Async version of run() for use within an existing trio context.
+        Async version of run() for use within an existing asyncio context.
         """
         await self._serve()
 

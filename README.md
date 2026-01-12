@@ -7,7 +7,7 @@ A FastAPI-style framework for building Gemini protocol servers in Python.
 - 🚀 **FastAPI-style decorators** - Define routes with familiar `@app.route()` syntax
 - 📦 **Router support** - Organize routes with `GeminiRouter` (like APIRouter)
 - 🔧 **Path parameters** - Extract values from URLs: `/user/{username}`
-- ⚡  **Async/await** - Built on Trio for high-performance async I/O
+- ⚡  **Async/await** - Built on asyncio for high-performance async I/O
 - 🛡️ **TLS/SSL** - Native client certificate support
 - 🎯 **Type hints** - Full Pydantic integration for request/response models
 

@@ -36,7 +36,6 @@ dependencies = [
     "cffi>=2.0.0",
     "cryptography>=46.0.3",
     "pydantic>=2.12.5",
-    "trio>=0.32.0",
 ]
 
 [project.urls]
