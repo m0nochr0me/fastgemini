@@ -71,7 +71,7 @@ class GeminiResponse(BaseModel):
         default=GEMINI_MEDIA_TYPE,
         description="The content type of the response",
     )
-    body: str | None = Field(
+    body: str | bytes | None = Field(
         default=None,
         description="The body of the response, if applicable",
     )
@@ -95,11 +95,14 @@ class GeminiResponse(BaseModel):
         return self
 
     @model_serializer
-    def serialize(self) -> str:
+    def serialize(self) -> bytes:
         lines = [f"{self.status.value}", " "]
         if self.content_type:
             lines.append(f"{self.content_type}")
         lines.append(CRLF)
-        if self.body:
-            lines.append(self.body)
-        return "".join(lines)
+
+        header = "".join(lines).encode("utf-8")
+        if self.body is None:
+            return header
+        body_bytes = self.body.encode("utf-8") if isinstance(self.body, str) else self.body
+        return header + body_bytes

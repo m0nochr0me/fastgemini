@@ -108,16 +108,6 @@ class GeminiApp(GeminiRouter):
 
         return decorator
 
-    # def on_startup(self, func: Callable[[], Any]) -> Callable[[], Any]:
-    #     """Register a startup event handler."""
-    #     self._on_startup.append(func)
-    #     return func
-
-    # def on_shutdown(self, func: Callable[[], Any]) -> Callable[[], Any]:
-    #     """Register a shutdown event handler."""
-    #     self._on_shutdown.append(func)
-    #     return func
-
     async def _handle_request(self, request: GeminiRequest) -> GeminiResponse:
         """
         Process a request and return a response.
@@ -196,7 +186,7 @@ class GeminiApp(GeminiRouter):
                     status=Status.BAD_REQUEST,
                     content_type=str(e),
                 )
-                writer.write(response.serialize().encode("utf-8"))
+                writer.write(response.serialize())
                 await writer.drain()
                 return
 
@@ -204,7 +194,7 @@ class GeminiApp(GeminiRouter):
             response = await self._handle_request(request)
 
             # Send response
-            writer.write(response.serialize().encode("utf-8"))
+            writer.write(response.serialize())
             await writer.drain()
 
         except ConnectionResetError:
